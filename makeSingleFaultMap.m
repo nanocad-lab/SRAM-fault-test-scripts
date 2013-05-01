@@ -83,5 +83,4 @@ for m = 1 : rows
    end
 end
 
-
-byteER = errorCount / rows*cols;
+byteER = errorCount / (rows*cols);

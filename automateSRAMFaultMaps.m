@@ -29,7 +29,7 @@ function [byteER, faultAnomalies, faultMap] = automateSRAMFaultMaps(chipNum, dat
 %   byteER
 %       numDataSets x numRuns 2D matrix of byte-wise error rates
 %   faultAnomalies
-%       numDataSets x numRuns 2D matrix of fault anomaly rates, defined as
+%       numDataSets-1 x numRuns 2D matrix of fault anomaly rates, defined as
 %       the number of faults detected at this voltage level but not present
 %       in the immediately lower voltage level
 %   faultMap
@@ -44,12 +44,11 @@ function [byteER, faultAnomalies, faultMap] = automateSRAMFaultMaps(chipNum, dat
 
 % aggregate data from each run
 byteER = NaN(numDataSets,numRuns);
-faultAnomalies = zeros(numDataSets,numRuns);
+faultAnomalies = zeros(numDataSets-1,numRuns);
 faultMap = NaN(rows,cols,numDataSets,numRuns);
 
 for i = 1 : numRuns
     display(['Run ' num2str(i) '...']);
-
     [byteER_run_i, faultAnomalies_run_i, faultMap_run_i] = makeFaultMaps([data_directory 'run' num2str(i) '/'], numDataSets, rows, cols);
     byteER(:,i) = byteER_run_i;
     faultAnomalies(:,i) = faultAnomalies_run_i;
@@ -76,7 +75,7 @@ hold off;
 figure;
 hold on;
 myColors = {'b-'};
-errorbar(voltages, mean(faultAnomalies,2), std(faultAnomalies,0,2), myColors{1});
+errorbar(voltages(2:size(voltages,2)), mean(faultAnomalies,2), std(faultAnomalies,0,2), myColors{1});
 set(gca, 'FontSize', 12);
 title(['Proportion of Faults Not Present in Next Lower Voltage Across ' int2str(numRuns) ' Runs, Chip ' int2str(chipNum) ', ' int2str(numKB) ' kB Tested']);
 set(gca, 'FontSize', 12);

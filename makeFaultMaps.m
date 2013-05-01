@@ -26,7 +26,7 @@ function [byteER, faultAnomalies, faultMap] = makeFaultMaps(data_directory, numD
 %   byteER
 %       numDataSets x 1 column vector of byte-wise error rates
 %   faultAnomalies
-%       numDataSets x 1 column vector of fault anomaly rates, defined as
+%       numDataSets-1 x 1 column vector of fault anomaly rates, defined as
 %       the number of faults detected at this voltage level but not present
 %       in the immediately lower voltage level
 %   faultMap
@@ -54,16 +54,14 @@ byteER = flipud(byteER);
 % Determine the degree of fault inclusion as we move from high to low
 % voltages -- i.e. faults at a voltage X, X < Y should be a superset of faults
 % at Y.
-faultInclusionMap = NaN(rows,cols,numDataSets);
+faultInclusionMap = NaN(rows,cols,numDataSets-1);
 for i = 1 : numDataSets-1
     faultInclusionMap(:,:,i) = faultMap(:,:,i) - faultMap(:,:,i+1); % 0 means fault at a given location was same. -1 means lower voltage had a fault that higher voltage didn't. 1 means a fault DISAPPEARED by going to lower voltage.
 end
 
 
-for i = 1 : numDataSets
-    faultAnomalyCount(i) = sum(sum((faultInclusionMap(:,:,i) > 0)));    
-    totalFaults(i) = sum(sum(faultMap(:,:,i)));
-    faultAnomalies(i) = faultAnomalyCount(i)/totalFaults(i);
+for i = 1 : numDataSets-1
+    faultAnomalies(i) = sum(sum((faultInclusionMap(:,:,i) > 0)));
 end
 
 faultAnomalies = faultAnomalies';
